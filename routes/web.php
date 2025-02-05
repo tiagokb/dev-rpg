@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Sheets\SheetsController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -23,9 +23,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/sheets/config', [SheetsController::class, 'config'])->name('sheets.config');
-});
 
-Route::get('/sheets/view', [SheetsController::class, 'view'])->name('sheets.view');
+    # CAMPAIGN REGION
+    Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
+    Route::get('/campaigns/{id}', [CampaignController::class, 'index'])->name('campaigns.index');
+    Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
+    Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
+    # END CAMPAIGN REGION
+
+});
 
 require __DIR__ . '/auth.php';
