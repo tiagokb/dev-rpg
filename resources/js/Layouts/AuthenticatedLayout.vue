@@ -11,15 +11,11 @@ import { Link } from '@inertiajs/vue3';
         <div class="flex justify-center bg-charcoal-d20">
             <div class="container py-8 flex justify-between items-center">
                 <div class="flex gap-2">
-                    <Link href="/">
-                    <Button size="xs">Página Inicial</Button>
-                    </Link>
-
                     <Link href="/dashboard">
                     <Button size="xs">Painel</Button>
                     </Link>
                 </div>
-                <Link href="/">
+                <Link href="/dashboard">
                 <ApplicationLogo class="h-14 w-14  text-gray-500" />
                 </Link>
                 <div class="flex gap-2">

@@ -14,9 +14,6 @@ import { Link } from '@inertiajs/vue3';
                 <Button size="xs">Página Inicial</Button>
                 </Link>
 
-                <Link href="/recursos">
-                <Button size="xs">Recursos</Button>
-                </Link>
             </div>
             <Link href="/">
             <ApplicationLogo class="h-14 w-14  text-gray-500" />

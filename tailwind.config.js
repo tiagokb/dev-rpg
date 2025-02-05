@@ -46,6 +46,7 @@ export default {
             backgroundImage: {
                 'barbarianBG': "url('/resources/images/barbarianbg.jpg')",
                 'mageBG': "url('/resources/images/magebg.jpg')",
+                'rogueBG': "url('/resources/images/roguebg.jpg')",
             },
         },
     },

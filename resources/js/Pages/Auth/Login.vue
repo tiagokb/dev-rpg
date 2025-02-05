@@ -27,7 +27,6 @@ const submit = () => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-charcoal-d20 pt-2 sm:justify-center sm:pt-0">
         <GuestLayout>
             <Head title="Entrar na conta" />
 
@@ -85,5 +84,4 @@ const submit = () => {
             </div>
         </GuestLayout>
 
-    </div>
 </template>

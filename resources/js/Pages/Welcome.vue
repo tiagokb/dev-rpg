@@ -22,13 +22,22 @@ defineProps({
 </script>
 
 <template>
-    <AuthenticatedLayout v-if=$page.props.auth.user>
 
-    </AuthenticatedLayout>
-
-    <GuestLayout  v-if=!$page.props.auth.user>
+    <GuestLayout>
 
         <Head title="Página principal" />
+        <div class="flex justify-center">
+            <div class="container flex flex-col gap-2 min-h-[350px] ">
+                <div class="flex justify-between items-center bg-rogueBG bg-cover bg-center rounded-lg h-80 w-full">
+                </div>
+                <div class="flex justify-between items-center bg-charcoal-d12 rounded-lg w-full h-80">
+            </div>
+
+            </div>
+        </div>
+
+
     </GuestLayout>
+
 
 </template>
