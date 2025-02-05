@@ -91,7 +91,7 @@ const form = useForm({
             </div>
 
             <div class="flex items-center gap-4">
-                <Button :disabled="form.processing">Save</Button>
+                <Button type="submit" :disabled="form.processing">Save</Button>
 
                 <Transition
                     enter-active-class="transition ease-in-out"

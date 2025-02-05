@@ -89,7 +89,7 @@ const closeModal = () => {
                 </div>
 
                 <div class="mt-6 flex justify-end">
-                    <Button @click="closeModal">
+                    <Button type="submit" @click="closeModal">
                         Cancel
                     </Button>
 
