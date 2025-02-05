@@ -72,7 +72,7 @@ const submit = () => {
 
                         <div class="mt-5 gap-5 flex flex-col items-center">
 
-                            <Button formato="primary" class="w-full" :class="{ 'opacity-25': form.processing }"
+                            <Button type="submit" formato="primary" class="w-full" :class="{ 'opacity-25': form.processing }"
                                 :disabled="form.processing">
                                 Cadastrar
                             </Button>
