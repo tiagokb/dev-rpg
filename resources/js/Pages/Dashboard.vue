@@ -13,7 +13,6 @@ const createCampaign = () => {
     form.get(route('campaigns.create'));
 };
 
-
 </script>
 
 <template>
@@ -31,13 +30,12 @@ const createCampaign = () => {
                         <h1 class="font-rpgSans text-sand-d8 text-2xl w-full">Campanhas</h1>
                         <Button size="xs" class="w-1/4" @click="createCampaign">Criar nova campanha</Button>
                     </div>
-
                     <div>
                     </div>
                     <div class="grid grid-cols-4 gap-4">
                         <div v-for="campaign in campaigns" :key="campaign.id" class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
                             <div class="h-48 bg-cover bg-center rounded-lg"
-                                :style="campaign.image ? { backgroundImage: `url(${campaign.image})` } : { backgroundImage: `url(/images/cover.jpg)` }">
+                                :style="campaign.image_url ? { backgroundImage: `url(${campaign.image_url})` } : { backgroundImage: `url(/images/cover.jpg)` }">
                             </div>
                             <div class="p-6 text-sand-d6">
                                 <h2 class="font-rpgSans text-sand-d8">{{ campaign.name }}</h2>

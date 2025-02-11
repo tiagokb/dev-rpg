@@ -31,7 +31,7 @@ class CampaignController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|url',
+            'image_url' => 'nullable|string',
         ]);
 
         // Criar a campanha

@@ -27,8 +27,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [CampaignController::class, 'dashboard'])->name('dashboard');
     
-
-
     # CAMPAIGN REGION
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
     Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
