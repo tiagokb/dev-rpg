@@ -44,9 +44,12 @@ export default {
                 }
             },
             backgroundImage: {
-                'barbarianBG': "url('/resources/images/barbarianbg.jpg')",
-                'mageBG': "url('/resources/images/magebg.jpg')",
-                'rogueBG': "url('/resources/images/roguebg.jpg')",
+                'barbarianBG': "url('/images/barbarianbg.jpg')",
+                'mageBG': "url('/images/magebg.jpg')",
+                'rogueBG': "url('/images/roguebg.jpg')",
+                'bardBG': "url('/images/bardbg.jpg')",
+                'rogueelfBG': "url('/images/rogueelfBG.jpg')",
+                'pirateBG': "url('/images/pirateBG.jpg')",
             },
         },
     },

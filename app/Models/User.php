@@ -57,4 +57,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Campaign::class);
     }
+
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class, 'user_id'); // supondo que a coluna user_id identifica o criador
+    }
 }

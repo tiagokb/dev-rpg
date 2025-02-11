@@ -22,9 +22,7 @@ defineProps({
 </script>
 
 <template>
-
     <GuestLayout>
-
         <Head title="Página principal" />
         <div class="flex justify-center">
             <div class="container flex flex-col gap-2 min-h-[350px] ">
@@ -35,9 +33,6 @@ defineProps({
 
             </div>
         </div>
-
-
     </GuestLayout>
-
 
 </template>

@@ -10,21 +10,24 @@ import { Link } from '@inertiajs/vue3';
 
         <div class="flex justify-center bg-charcoal-d20">
             <div class="container py-8 flex justify-between items-center">
+
+
                 <div class="flex gap-2">
                     <Link href="/dashboard">
-                    <Button size="xs">Painel</Button>
+                    <ApplicationLogo class="h-14 w-14  text-gray-500" />
                     </Link>
                 </div>
-                <Link href="/dashboard">
-                <ApplicationLogo class="h-14 w-14  text-gray-500" />
-                </Link>
                 <div class="flex gap-2">
+                    <Link href="/dashboard">
+                    <Button size="xs">Campanhas</Button>
+                    </Link>
                     <Link :href="route('profile.edit')">
-                    <Button size="xs">{{ $page.props.auth.user.name }}</Button>
+                    <Button size="xs">{{ $page.props.auth.user.name }}
+                    </Button>
                     </Link>
 
                     <Link :href="route('logout')" method="post" as="button">
-                    <Button size="xs">Sair</Button>
+                    <Button size="xs"> Sair                    </Button>
                     </Link>
 
                 </div>
