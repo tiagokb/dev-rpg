@@ -4,6 +4,8 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -44,5 +46,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function playingCampaign(): BelongsToMany
+    {
+        return $this->belongsToMany(Campaign::class)->withPivot('joined_at');
+    }
+
+    public function masteringCampaign(): HasMany
+    {
+        return $this->hasMany(Campaign::class);
+    }
+
+    public function campaigns()
+    {
+        return $this->hasMany(Campaign::class, 'user_id'); // supondo que a coluna user_id identifica o criador
     }
 }

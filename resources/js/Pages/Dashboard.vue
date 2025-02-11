@@ -1,30 +1,58 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import Button from '@/Components/Button.vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+
+defineProps({
+    campaigns: Object,
+});
+
+const form = useForm({});
+
+const createCampaign = () => {
+    form.get(route('campaigns.create'));
+};
+
+
 </script>
 
 <template>
+
     <Head title="Dashboard" />
-
     <AuthenticatedLayout>
-        <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
-            >
-                Dashboard
-            </h2>
-        </template>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div
-                    class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800"
-                >
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        You're logged in!
+        <Head title="Painel" />
+        <div class="flex justify-center">
+            <div class="container flex flex-col gap-2 min-h-[350px] ">
+                <div class="flex justify-between items-center bg-rogueelfBG bg-cover bg-center rounded-lg h-40 w-full">
+                </div>
+                <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-5">
+                    <div class="flex justify-end">
+                        <h1 class="font-rpgSans text-sand-d8 text-2xl w-full">Campanhas</h1>
+                        <Button size="xs" class="w-1/4" @click="createCampaign">Criar nova campanha</Button>
+                    </div>
+
+                    <div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-4">
+                        <div v-for="campaign in campaigns" :key="campaign.id" class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
+                            <div class="h-48 bg-cover bg-center rounded-lg"
+                                :style="campaign.image ? { backgroundImage: `url(${campaign.image})` } : { backgroundImage: `url(/images/cover.jpg)` }">
+                            </div>
+                            <div class="p-6 text-sand-d6">
+                                <h2 class="font-rpgSans text-sand-d8">{{ campaign.name }}</h2>
+                                <p class="text-sand-d6 text-sm"> {{ campaign.description }}
+                                </p>
+                                <div class="mt-4 flex gap-2">
+                                    <Button formato="ghost" size="xs" class="w-full">Editar</Button>
+                                    <Button formato="primary" size="xs" class="w-full">Iniciar</Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
     </AuthenticatedLayout>
 </template>
