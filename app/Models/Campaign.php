@@ -13,11 +13,15 @@ class Campaign extends Model
         'description',
         'image_url',
         'user_id',
+        'invite_code'
+
     ];
+
+    
 
     public function master(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function players(): BelongsToMany

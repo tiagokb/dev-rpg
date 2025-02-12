@@ -37,7 +37,7 @@ const updatePassword = () => {
     <section>
 
         <header>
-            <h1 class="font-rpgSans text-white text-2xl">Atualizar senha</h1>
+            <h1 class="font-rpgSans text-sand-d6 text-2xl">Atualizar senha</h1>
             <p class="mt-1 text-sm text-sand-d6">
                 Certifique-se de que sua conta esteja usando uma senha longa e aleatória para permanecer seguro.
             </p>

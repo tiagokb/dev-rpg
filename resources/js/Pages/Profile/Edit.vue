@@ -21,30 +21,21 @@ defineProps({
 
     <AuthenticatedLayout>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-charcoal-d12 rounded-lg p-8"
-                >
+            <div class="container mx-auto grid grid-cols-2 gap-4 pb-8">
+                <div class="col-span-1 bg-charcoal-d12 rounded-lg p-8">
                     <UpdateProfileInformationForm
                         :must-verify-email="mustVerifyEmail"
                         :status="status"
-                        class="max-w-xl"
                     />
                 </div>
 
-                <div
-                    class="bg-charcoal-d12 rounded-lg p-8"
-                >
-                    <UpdatePasswordForm class="max-w-xl" />
+                <div class="col-span-1 bg-charcoal-d12 rounded-lg p-8">
+                    <UpdatePasswordForm />
                 </div>
 
-                <div
-                    class="bg-charcoal-d12 rounded-lg p-8"
-                >
-                    <DeleteUserForm class="max-w-xl" />
+                <div class="col-span-2 bg-charcoal-d12 rounded-lg p-8">
+                    <DeleteUserForm />
                 </div>
             </div>
-        </div>
     </AuthenticatedLayout>
 </template>

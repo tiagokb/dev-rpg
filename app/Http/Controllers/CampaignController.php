@@ -10,22 +10,26 @@ use Inertia\Inertia;
 class CampaignController extends Controller
 
 {
-    public function dashboard()
-    {
+    public function index(){
+        $campaigns = auth()->user()->campaigns()->with('master')->get();
+        
+        return Inertia::render('Campaigns/Index', ['campaigns' => $campaigns]);
+
+
+        // return Inertia::render('Dashboard', ['campaigns' => $campaigns, 'links' => $campaigns->links()]);
+        
         // Lógica para obter as campanhas
-        $campaigns = Campaign::all();
+        // $campaigns = Campaign::where('user_id', Auth::id())->with('master')->get();
+        // dd($campaigns->toRawSql());
+        // $campaigns = auth()->user()->campaigns()->with('master')->paginate(2);
 
+        // $campaigns2 = auth()->user()->campaigns()->with('master')->get();
+        
         // Retorna a view com as campanhas
-        return Inertia::render('Dashboard', ['campaigns' => $campaigns]);
+        // dd($campaigns->toArray(), $campaigns->links());
+
     }
 
-    public function create()
-    {
-        // Retorna a página de criação de campanha
-        return Inertia::render('Campaigns/Create');
-    }
-
-    
     public function store(Request $request){
         // Validação dos dados
         $request->validate([
@@ -42,10 +46,22 @@ class CampaignController extends Controller
             'user_id' => auth()->id(), // Usuário logado é o mestre
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Campanha criada com sucesso!');
+        return redirect()->route('campaigns.index')->with('success', 'Campanha criada com sucesso!');
 
             //     return redirect()->route('campaigns.index')
             // ->with('success', 'Campanha criada com sucesso!');
     }
+
+    public function edit($id){
+        // Lógica para obter a campanha
+        $campaign = Campaign::with(['master', 'players'])->get()->find($id);
+
+        // Retorna a view com a campanha
+        return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
+    }
+
+
+
+
 }
 

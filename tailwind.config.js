@@ -18,7 +18,7 @@ export default {
                 lg: '984px',
                 xl: '1240px',
                 '2xl': '1440px',
-            } 
+            }
         },
 
         extend: {
@@ -26,20 +26,20 @@ export default {
                 sans: ['Inter', ...defaultTheme.fontFamily.sans],
                 rpgSans: ['Inknut Antiqua', ...defaultTheme.fontFamily.sans],
             },
-            colors:{
-                sand:{
-                 'd6':'#D1D0CF',
-                 'd8':'#F1D7AF'
+            colors: {
+                sand: {
+                    'd6': '#D1D0CF',
+                    'd8': '#F1D7AF'
                 },
-                charcoal:{
-                    'd8':'#474747',
-                    'd10':'#2F2F2F',
-                    'd12':'#1B1B1B',
-                    'd20':'#101010',
+                charcoal: {
+                    'd8': '#474747',
+                    'd10': '#2F2F2F',
+                    'd12': '#1B1B1B',
+                    'd20': '#101010',
                 },
-                mage:{
-                    'd6':'#AB83E0',
-                    'd8':'#4E00B5',
+                mage: {
+                    'd6': '#AB83E0',
+                    'd8': '#4E00B5',
                     'd10': '#5E17BB'
                 }
             },
@@ -54,5 +54,10 @@ export default {
         },
     },
 
-    plugins: [forms],
+    plugins: [
+        forms,
+        require("@tailwindcss/line-clamp"),
+
+    ],
+
 };
