@@ -20,6 +20,7 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
-        "@phosphor-icons/vue": "^2.2.1"
+        "@phosphor-icons/vue": "^2.2.1",
+        "@tailwindcss/line-clamp": "^0.4.4"
     }
 }

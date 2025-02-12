@@ -41,7 +41,7 @@ const closeModal = () => {
     <section class="space-y-6">
         <header>
 
-            <h2 class="font-rpgSans text-white text-2xl">
+            <h2 class="font-rpgSans text-sand-d6 text-2xl">
                 Deletar conta
             </h2>
 

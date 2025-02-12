@@ -25,7 +25,7 @@ const form = useForm({
 <template>
     <section>
         <header>
-            <h1 class="font-rpgSans text-white text-2xl">Informações</h1>
+            <h1 class="font-rpgSans text-sand-d6 text-2xl">Informações</h1>
             <p class="mt-1 text-sm text-sand-d6">
                 Atualize as informações de perfil e endereço de e-mail da sua conta.
             </p>
