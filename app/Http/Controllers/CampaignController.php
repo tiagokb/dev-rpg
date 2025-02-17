@@ -60,8 +60,13 @@ class CampaignController extends Controller
         return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
     }
 
+    public function update(Request $request, Campaign $campaign)
+{
+    $campaign->update($request->only(['name', 'image_url', 'description']));
+}
 
 
+    
 
 }
 

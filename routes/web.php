@@ -33,8 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/campaigns/details/{id}', [CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
 
-    
-
+    Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
     # END CAMPAIGN REGION
 
 

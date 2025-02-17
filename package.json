@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@phosphor-icons/vue": "^2.2.1",
-        "@tailwindcss/line-clamp": "^0.4.4"
+        "@tailwindcss/line-clamp": "^0.4.4",
+        "lucide-vue-next": "^0.475.0"
     }
 }
