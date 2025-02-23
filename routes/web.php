@@ -34,9 +34,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
 
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
+    
+    Route::post('/campaigns/join', [CampaignController::class, 'join'])
     # END CAMPAIGN REGION
-
-
+    ->name('campaigns.join')
+    ->middleware('auth');
 });
 
 require __DIR__ . '/auth.php';

@@ -17,13 +17,22 @@ class Campaign extends Model
     ];
 
     protected static function boot()
-    {
-        parent::boot();
+{
+    parent::boot();
 
-        static::creating(function ($campaign) {
-            $campaign->invite_code = Str::uuid(); // Gera o UUID
-        });
-    }
+    static::creating(function ($campaign) {
+        do {
+            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            $code = '';
+            
+            for ($i = 0; $i < 6; $i++) {
+                $code .= $characters[random_int(0, strlen($characters) - 1)];
+            }
+        } while (self::where('invite_code', $code)->exists());
+
+        $campaign->invite_code = $code;
+    });
+}
     
 
     public function master(): BelongsTo

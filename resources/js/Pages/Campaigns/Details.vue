@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/Button.vue';
 import { Head, Link, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { FilePenLine, Save } from 'lucide-vue-next';
 
 const props = defineProps({
@@ -36,7 +36,7 @@ const copyCode = async () => {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        
+
     }
 };
 
@@ -66,6 +66,8 @@ const toggleEditImage = () => {
     }
     editingImage.value = !editingImage.value;
 };
+
+
 </script>
 
 <template>
@@ -73,8 +75,8 @@ const toggleEditImage = () => {
     <Head title="Campanhas" />
     <AuthenticatedLayout>
         <div class="flex justify-center">
-            <div class="container grid grid-cols-4 gap-2 min-h-[350px]">
-                <div class="grid col-span-4 grid-cols-5 justify-between items-center bg-cover bg-center rounded-lg h-80 w-full"
+            <div class="container gap-2 min-h-[350px] grid grid-cols-4 mb-8">
+                <div class="col-span-4 flex justify-between items-center bg-cover bg-center rounded-lg h-80 w-full"
                     :style="{
                         backgroundImage: editedCampaign.image_url ? `url(${editedCampaign.image_url})` : 'url(/images/cover.jpg)'
                     }">
@@ -91,21 +93,7 @@ const toggleEditImage = () => {
                             'Trocar imagem' }} </Button>
                     </div>
                 </div>
-                <div class="flex flex-col col-span-2 p-8 bg-charcoal-d12 rounded-lg gap-4 items-start">
-                    <h1 class="font-rpgSans text-sand-d6 text-2xl">Ações</h1>
-                    <Button formato="primary" class="w-full" size="xs">Iniciar</Button>
-                    <p class="text-sand-d6">Criado por: {{ campaign.master.name }}</p>
-
-                </div>
-                <div class="grid col-span-2 p-8 bg-charcoal-d12 rounded-lg gap-5 flex flex-col">
-                    <h1 class="font-rpgSans text-sand-d6 text-2xl">Jogadores</h1>
-                    <Button  @click="copyCode" formato="secondary" size="xs" :class="{ '!text-green-400': isCopied }">
-                        {{ isCopied ? 'Código Copiado!' : campaign.invite_code }}
-                    </Button>
-                    <p class="text-sand-d6">Jogadores: {{ campaign.players }}</p>
-
-                </div>
-                <div class="grid col-span-4 p-8 bg-charcoal-d12 rounded-lg gap-5">
+                <div class="col-span-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
                     <h1 class="font-rpgSans text-sand-d6 text-2xl flex gap-4 justify-between items-center">
                         <input v-if="editingInfos" v-model="editedCampaign.name"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
@@ -122,6 +110,26 @@ const toggleEditImage = () => {
                         <span v-else>{{ campaign.description }}</span>
 
                     </p>
+                </div>
+                <div class="flex flex-col gap-2 col-span-1">
+                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Ações</h1>
+                        <Button formato="primary" class="w-full" size="xs">Iniciar</Button>
+                        <p class="text-sand-d6">Criado por: {{ campaign.master.name }}</p>
+
+                    </div>
+                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Convite</h1>
+                        <p class="mt-1 text-sm text-sand-d6">
+                            Copie o código e envie para o jogador. Eles poderão se juntar à sua campanha com ele.
+                        </p>
+                        <Button @click="copyCode" formato="secondary" size="xs"
+                            :class="{ '!text-green-400': isCopied }">
+                            {{ isCopied ? 'Código Copiado!' : campaign.invite_code }}
+                        </Button>
+                        <p class="text-sand-d6">Jogadores: {{ campaign.players }}</p>
+
+                    </div>
                 </div>
             </div>
         </div>
