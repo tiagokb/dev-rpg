@@ -9,48 +9,17 @@ use Inertia\Inertia;
 
 class CampaignController extends Controller
 {
-    // public function index()
-    // {
-    //     $campaigns = auth()->user()->campaigns()->get();
-
-    //     return Inertia::render('Campaigns/Index', ['campaigns' => $campaigns]);
-
-    //     // return Inertia::render('Dashboard', ['campaigns' => $campaigns, 'links' => $campaigns->links()]);
-
-    //     // Lógica para obter as campanhas
-    //     // $campaigns = Campaign::where('user_id', Auth::id())->with('master')->get();
-    //     // dd($campaigns->toRawSql());
-    //     // $campaigns = auth()->user()->campaigns()->with('master')->paginate(2);
-
-    //     // $campaigns2 = auth()->user()->campaigns()->with('master')->get();
-
-    //     // Retorna a view com as campanhas
-    //     // dd($campaigns->toArray(), $campaigns->links());
-
-    // }
-
     public function index()
-{
-    $user = auth()->user();
-    
-    $campaigns = Campaign::query()
-        ->where(function($query) use ($user) {
-            $query->where('user_id', $user->id) // Campanhas onde é mestre
-                  ->orWhereHas('players', function($q) use ($user) {
-                      $q->where('user_id', $user->id); // Campanhas onde é jogador
-                  });
-        })
-        ->with(['master', 'players'])
-        ->paginate(10);
+    {
+        $user = auth()->user();
 
-    return Inertia::render('Campaigns/Index', [
-        'campaigns' => $campaigns,
-        'userRole' => [
-            'isMaster' => $user->masteringCampaign->pluck('id'),
-            'isPlayer' => $user->playingCampaign->pluck('id')
-        ]
-    ]);
-}
+        return Inertia::render('Campaigns/Index', [
+            'campaigns' => $user->mastering()
+                ->withCount('players')
+                ->union($user->playing()->withCount('players'))
+                ->paginate(10)
+        ]);
+    }
 
     public function store(Request $request)
     {
@@ -74,21 +43,21 @@ class CampaignController extends Controller
         //     return redirect()->route('campaigns.index')
         // ->with('success', 'Campanha criada com sucesso!');
     }
-
     public function edit($id)
     {
-        // Lógica para obter a campanha
-        $campaign = Campaign::with(['master', 'players'])->get()->find($id);
+        $campaign = Campaign::with(['master', 'players'])->findOrFail($id);
 
-        // Retorna a view com a campanha
+        // Verificar se o usuário é mestre ou jogador
+        if (auth()->id() !== $campaign->user_id && !$campaign->players->contains(auth()->id())) {
+            abort(403, 'Acesso não autorizado');
+        }
+
         return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
     }
-
     public function update(Request $request, Campaign $campaign)
     {
         $campaign->update($request->only(['name', 'image_url', 'description']));
     }
-
     public function join(Request $request)
     {
         $validated = $request->validate([
@@ -106,6 +75,34 @@ class CampaignController extends Controller
         return redirect()->route('campaigns.index')->with('success', 'Você entrou na campanha com sucesso!');
     }
 
+    public function leave(Request $request, Campaign $campaign)
+{
+    $user = auth()->user();
+
+    // Verifica se o usuário realmente está na campanha
+    if (!$campaign->players()->where('user_id', $user->id)->exists()) {
+        return back()->withErrors(['error' => 'Você não faz parte desta campanha.']);
+    }
+
+    // Remove o jogador da campanha
+    $campaign->players()->detach($user->id);
+
+    return redirect()->route('campaigns.index')->with('success', 'Você saiu da campanha.');
+}
+
+
+    public function destroy(Campaign $campaign)
+    {
+        // Verifica se o usuário é o mestre da campanha
+        if (auth()->id() !== $campaign->user_id) {
+            abort(403, 'Acesso não autorizado');
+        }
+
+        // Exclui a campanha (os jogadores são removidos automaticamente via cascade)
+        $campaign->delete();
+
+        return redirect()->route('campaigns.index')->with('success', 'Campanha excluída com sucesso!');
+    }
 
 }
 

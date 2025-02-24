@@ -8,9 +8,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('campaign_user', function (Blueprint $table) {
-            $table->foreignId('campaign_id')->constrained('campaigns');
-            $table->foreignId('user_id')->constrained('users');
-            $table->timestamp('joined_at')->useCurrent();
+            $table->foreignId('campaign_id')->constrained('campaigns')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->timestamp(column: 'joined_at')->nullable()->onDelete('cascade');;
             $table->primary(['campaign_id', 'user_id']);
         });
     }

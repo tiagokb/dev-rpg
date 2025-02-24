@@ -22,6 +22,7 @@
     "dependencies": {
         "@phosphor-icons/vue": "^2.2.1",
         "@tailwindcss/line-clamp": "^0.4.4",
+        "dayjs": "^1.11.13",
         "lucide-vue-next": "^0.475.0"
     }
 }

@@ -2,12 +2,13 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/Button.vue';
 import Modal from '@/Components/Modal.vue';
+import IconMaster from '@/Components/IconMaster.vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 
 
 const props = defineProps({
-    campaigns: Object,
+    campaigns: Object
 });
 
 const NewCampaignModal = ref(false);
@@ -98,21 +99,20 @@ const submitInvite = () => {
                         <div v-for="campaign in campaigns.data" :key="campaign.id"
                             class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
                             <Link :href="route('campaigns.edit', campaign.id)">
-                            <div class="h-48 bg-cover bg-center rounded-lg"
+                            <div class="h-48 bg-cover bg-center rounded-lg p-2"
                                 :style="campaign.image_url ? { backgroundImage: `url(${campaign.image_url})` } : { backgroundImage: `url(/images/cover.jpg)` }">
-                            
-                                <p class="px-4 py-2 m2 rounded bg-charcoal-d12 w-fit text-sand-d8 text-xs" v-if="campaign.master.name === $page.props.auth.user.name "> Você é o mestre</p>
+                                <IconMaster v-if="campaign.is_master" />
+                                
                             </div>
                             </Link>
                             <div class="p-6 text-sand-d6">
-                                
-                                <h2 class="font-rpgSans text-sand-d8">{{ campaign.name }} - {{ campaign.id }}</h2>
+                                <h2 class="font-rpgSans text-sand-d8">{{ campaign.name }}</h2>
                                 <p class="text-sand-d6 text-sm line-clamp-3"> {{ campaign.description }}
                                 </p>
                                 <div class="mt-4 flex gap-2">
                                     <Link class="w-full" :href="route('campaigns.edit', campaign.id)">
-                                        <Button formato="ghost" size="xs" class="w-full">Editar</Button></Link>
-                                        
+                                        <Button formato="ghost" size="xs" class="w-full">Ver</Button>
+                                    </Link>
                                         <Button formato="primary" size="xs" class="w-full">Iniciar</Button>
                                     </div>
                             </div>

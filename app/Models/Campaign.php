@@ -45,4 +45,14 @@ class Campaign extends Model
         return $this->belongsToMany(User::class)->withPivot('joined_at');
     }
 
+    protected $appends = ['is_master'];
+    public function getIsMasterAttribute(): bool
+    {
+        return $this->user_id === auth()->id();
+    }
+
+    public function characters()
+{
+    return $this->hasMany(Character::class);
+}
 }
