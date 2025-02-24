@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CampaignController;
+use App\Http\Controllers\CharacterController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -32,10 +33,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
     Route::get('/campaigns/details/{id}', [CampaignController::class, 'edit'])->name('campaigns.edit');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
-
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
-    # END CAMPAIGN REGION
+    Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
+    Route::post('/campaigns/join', [CampaignController::class, 'join'])->name('campaigns.join');
+    Route::delete('/campaigns/{campaign}/leave', [CampaignController::class, 'leave'])
+        ->name('campaigns.leave');
 
+    # CHARACTER REGION
 
 });
 
