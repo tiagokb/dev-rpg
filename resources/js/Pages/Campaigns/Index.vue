@@ -168,7 +168,7 @@ const submitInvite = () => {
 
                     <div>
                         <label class="font-rpgSans text-sand-d8 text-xs font-thin">Código da Campanha</label>
-                        <input v-model="inviteForm.code" type="text" maxlength="6"
+                        <input v-model="inviteForm.code" type="text" maxlength="10"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"
                             required @input="inviteForm.code = inviteForm.code.toUpperCase().replace(/[^A-Z0-9]/g, '')">
                         <p v-if="inviteForm.errors.code" class="text-red-400 text-xs mt-1">

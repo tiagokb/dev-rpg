@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Observers\CampaignObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
+#[ObservedBy([CampaignObserver::class])]
 
 class Campaign extends Model
 {
@@ -19,24 +22,7 @@ class Campaign extends Model
         'user_id'
     ];
 
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function ($campaign) {
-            do {
-                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                $code = '';
-
-                for ($i = 0; $i < 6; $i++) {
-                    $code .= $characters[random_int(0, strlen($characters) - 1)];
-                }
-            } while (self::where('invite_code', $code)->exists());
-
-            $campaign->invite_code = $code;
-        });
-    }
-
+    
     protected function createdAt(): Attribute
     {
         return Attribute::make(
@@ -59,7 +45,7 @@ class Campaign extends Model
 
     public function players(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)->withPivot('joined_at');
+        return $this->belongsToMany(User::class)->withPivot(['joined_at']);
     }
 
     protected $appends = ['is_master'];

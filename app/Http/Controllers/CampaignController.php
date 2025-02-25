@@ -41,15 +41,13 @@ class CampaignController extends Controller
 
         return redirect()->route('campaigns.index')->with('success', 'Campanha criada com sucesso!');
 
-        //     return redirect()->route('campaigns.index')
-        // ->with('success', 'Campanha criada com sucesso!');
     }
 
     public function view($id)
     {
         $campaign = Campaign::with(['master', 'players'])->findOrFail($id);
         // dd($campaign->created_at, $campaign->players()->first()->pivot->joined_at, $campaign->updated_at);
-        dd($campaign->players()->first()->pivot, $campaign);
+        // dd($campaign->players()->first()->pivot, $campaign);
 
         Gate::authorize('view', $campaign);
         return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
@@ -72,7 +70,7 @@ class CampaignController extends Controller
     {
         try {
             $validated = $request->validate([
-                'code' => 'required|string|size:6|regex:/^[A-Z0-9]{6}$/'
+                'code' => 'required|string|size:10|regex:/^[A-Z0-9]{10}$/'
             ]);
 
             $campaign = Campaign::where('invite_code', $validated['code'])->firstOrFail();

@@ -131,7 +131,7 @@ const deleteCampaign = (campaignId) => {
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
                         <span v-else>{{ campaign.name }}</span>
 
-                        <Button @click="toggleEditInfos" formato="secondary" size="icon">
+                        <Button  v-if="campaign.is_master" @click="toggleEditInfos" formato="secondary" size="icon">
                             <FilePenLine v-if="!editingInfos" class="w-4 h-4" />
                             <Save v-else class="w-4 h-4" />
                         </Button>
@@ -147,8 +147,9 @@ const deleteCampaign = (campaignId) => {
                     <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
                         <h1 class="font-rpgSans text-sand-d6 text-2xl"> Ações</h1>
                         <Button formato="primary" class="w-full" size="xs">Iniciar</Button>
-                        <p class="text-sand-d6 text-xs">Criado por {{ campaign.master.name }} em 
-                            {{ campaign.created_at }} || {{ campaign.updated_at }}</p>
+                        <p class="text-sand-d6 text-xs">Criado por {{ campaign.master.name }} em {{
+                            dayjs(campaign.created_at).format('DD/MM/YY') }} e atualizado pela última vez {{
+                                dayjs().locale(pt).to(campaign.updated_at) }}</p>
                     </div>
                     <div v-if="campaign.is_master" class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
                         <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Convite</h1>
@@ -164,14 +165,12 @@ const deleteCampaign = (campaignId) => {
                     <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
                         <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Jogadores</h1>
                         <p class="text-sand-d6 text-xs" v-for="player in campaign.players">
-                            {{ player.pivot.joined_at }}
-
-
+                            {{ player.name }} entrou na
+                            campanha {{ dayjs().locale(pt).to(dayjs(player.pivot.joined_at).toISOString()) }}
                         </p>
                     </div>
                     <div class="flex flex-row md:flex-col gap-2 ">
-                        <Button class="w-full" @click="deleteCampaign(campaign.id)" formato="ghost" size="xs">Apagar
-                            campanha</Button>
+                        <Button v-if="campaign.is_master" class="w-full" @click="deleteCampaign(campaign.id)" formato="ghost" size="xs">Apagar campanha</Button>
 
                         <Button class="w-full" @click="leaveCampaign" :disabled="isLeaving" formato="ghost" size="xs">
                             {{ isLeaving ?
