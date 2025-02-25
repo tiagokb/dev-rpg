@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
     # CAMPAIGN REGION
     Route::get('/campaigns/create', [CampaignController::class, 'create'])->name('campaigns.create');
     Route::get('/campaigns', [CampaignController::class, 'index'])->name('campaigns.index');
-    Route::get('/campaigns/details/{id}', [CampaignController::class, 'edit'])->name('campaigns.edit');
+    Route::get('/campaigns/details/{id}', [CampaignController::class, 'view'])->name('campaigns.view');
     Route::post('/campaigns', [CampaignController::class, 'store'])->name('campaigns.store');
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
     Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');

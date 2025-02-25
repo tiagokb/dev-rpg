@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Str;
+
 
 class Campaign extends Model
 {
+    public const max_players = 3;
+
     protected $fillable = [
         'name',
         'description',
@@ -17,23 +20,37 @@ class Campaign extends Model
     ];
 
     protected static function boot()
-{
-    parent::boot();
+    {
+        parent::boot();
 
-    static::creating(function ($campaign) {
-        do {
-            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            $code = '';
-            
-            for ($i = 0; $i < 6; $i++) {
-                $code .= $characters[random_int(0, strlen($characters) - 1)];
-            }
-        } while (self::where('invite_code', $code)->exists());
+        static::creating(function ($campaign) {
+            do {
+                $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                $code = '';
 
-        $campaign->invite_code = $code;
-    });
-}
-    
+                for ($i = 0; $i < 6; $i++) {
+                    $code .= $characters[random_int(0, strlen($characters) - 1)];
+                }
+            } while (self::where('invite_code', $code)->exists());
+
+            $campaign->invite_code = $code;
+        });
+    }
+
+    protected function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value,
+        );
+    }
+
+    protected function updatedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value,
+        );
+    }
+
 
     public function master(): BelongsTo
     {
@@ -50,9 +67,4 @@ class Campaign extends Model
     {
         return $this->user_id === auth()->id();
     }
-
-    public function characters()
-{
-    return $this->hasMany(Character::class);
-}
 }

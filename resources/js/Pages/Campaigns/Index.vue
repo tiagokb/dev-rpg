@@ -11,6 +11,7 @@ const props = defineProps({
     campaigns: Object
 });
 
+
 const NewCampaignModal = ref(false);
 
 const CampaignModal = () => {
@@ -98,11 +99,11 @@ const submitInvite = () => {
                     <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 col-">
                         <div v-for="campaign in campaigns.data" :key="campaign.id"
                             class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
-                            <Link :href="route('campaigns.edit', campaign.id)">
+                            <Link :href="route('campaigns.view', campaign.id)">
                             <div class="h-48 bg-cover bg-center rounded-lg p-2"
                                 :style="campaign.image_url ? { backgroundImage: `url(${campaign.image_url})` } : { backgroundImage: `url(/images/cover.jpg)` }">
                                 <IconMaster v-if="campaign.is_master" />
-                                
+
                             </div>
                             </Link>
                             <div class="p-6 text-sand-d6">
@@ -110,11 +111,11 @@ const submitInvite = () => {
                                 <p class="text-sand-d6 text-sm line-clamp-3"> {{ campaign.description }}
                                 </p>
                                 <div class="mt-4 flex gap-2">
-                                    <Link class="w-full" :href="route('campaigns.edit', campaign.id)">
-                                        <Button formato="ghost" size="xs" class="w-full">Ver</Button>
+                                    <Link class="w-full" :href="route('campaigns.view', campaign.id)">
+                                    <Button formato="ghost" size="xs" class="w-full">Ver</Button>
                                     </Link>
-                                        <Button formato="primary" size="xs" class="w-full">Iniciar</Button>
-                                    </div>
+                                    <Button formato="primary" size="xs" class="w-full">Iniciar</Button>
+                                </div>
                             </div>
                         </div>
                     </div>
