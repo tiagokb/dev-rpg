@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class Campaign extends Model
 {
-    public const max_players = 3;
+    public const max_players = 100;
 
     protected $fillable = [
         'name',
@@ -22,7 +22,6 @@ class Campaign extends Model
         'user_id'
     ];
 
-    
     protected function createdAt(): Attribute
     {
         return Attribute::make(
@@ -36,7 +35,6 @@ class Campaign extends Model
             get: fn ($value) => $value,
         );
     }
-
 
     public function master(): BelongsTo
     {

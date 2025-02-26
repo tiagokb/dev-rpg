@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Campaign;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Gate;
 
 class CampaignPolicy
 {
@@ -39,9 +38,10 @@ class CampaignPolicy
             return Response::deny('Você é o mestre desta campanha. Não saia!');
         }
 
-        return !$campaign->players->contains($user)
-            ? Response::deny('Você não está participando desta campanha.')
-            : Response::allow('Você saiu da campanha');
+
+        return $campaign->players->contains($user)
+        ? Response::allow('Você saiu da campanha')
+        : Response::deny('Você não está participando desta campanha.');
     }
 
     /**

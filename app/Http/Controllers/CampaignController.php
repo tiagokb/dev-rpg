@@ -101,6 +101,7 @@ class CampaignController extends Controller
         try {
             $auth = Gate::authorize('destroy', $campaign);
             $campaign->delete();
+            
             return redirect()->route('campaigns.index')->with('success', $auth->message());
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());

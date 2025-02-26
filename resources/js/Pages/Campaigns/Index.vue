@@ -96,7 +96,7 @@ const submitInvite = () => {
                             <Button size="xs" @click="InviteModal">Participar de uma campanha</Button>
                         </div>
                     </div>
-                    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 col-">
+                    <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
                         <div v-for="campaign in campaigns.data" :key="campaign.id"
                             class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
                             <Link :href="route('campaigns.view', campaign.id)">
@@ -106,6 +106,7 @@ const submitInvite = () => {
 
                             </div>
                             </Link>
+
                             <div class="p-6 text-sand-d6">
                                 <h2 class="font-rpgSans text-sand-d8">{{ campaign.name }}</h2>
                                 <p class="text-sand-d6 text-sm line-clamp-3"> {{ campaign.description }}
