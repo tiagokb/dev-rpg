@@ -51,12 +51,25 @@ export default {
                 'rogueelfBG': "url('/images/rogueelfBG.jpg')",
                 'pirateBG': "url('/images/pirateBG.jpg')",
             },
+            keyframes: {
+                progress: {
+                    '0%': { width: '0%' },
+                    '100%': { width: '100%' },
+                },
+            },
+            animation: {
+                progress: 'progress 1s ease-in forwards',
+                fade: 'fade 1s ease-in-out forwards',
+                slideLeft: 'slideLeft 1s ease-in-out forwards',
+            },
         },
     },
 
     plugins: [
         forms,
         require("@tailwindcss/line-clamp"),
+        require("tailwindcss-animate"),
+
 
     ],
 

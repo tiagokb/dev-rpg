@@ -48,12 +48,12 @@ class User extends Authenticatable
         ];
     }
 
-    public function playingCampaign(): BelongsToMany
+    public function playing(): BelongsToMany
     {
         return $this->belongsToMany(Campaign::class)->withPivot('joined_at');
     }
 
-    public function masteringCampaign(): HasMany
+    public function mastering(): HasMany
     {
         return $this->hasMany(Campaign::class);
     }
@@ -62,4 +62,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(Campaign::class, 'user_id'); // supondo que a coluna user_id identifica o criador
     }
+
 }
