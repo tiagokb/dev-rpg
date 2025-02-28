@@ -22,7 +22,7 @@
     size: {
       type: String,
       default: 'normal',
-      validator: (value) => ['normal', 'xs'].includes(value)
+      validator: (value) => ['normal', 'xs', 'icon'].includes(value)
     },
 
     htmlType: {

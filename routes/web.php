@@ -36,10 +36,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/campaigns/{campaign}', [CampaignController::class, 'update']);
     Route::delete('/campaigns/{campaign}', [CampaignController::class, 'destroy'])->name('campaigns.destroy');
     Route::post('/campaigns/join', [CampaignController::class, 'join'])->name('campaigns.join');
-    Route::delete('/campaigns/{campaign}/leave', [CampaignController::class, 'leave'])
-        ->name('campaigns.leave');
-
+    Route::put('/campaigns/transfer/{campaign}', [CampaignController::class, 'transfer'])->name('campaigns.transfer');
+    Route::put('/campaigns/leave/{campaign}', [CampaignController::class, 'leave'])->name('campaigns.leave');
     # CHARACTER REGION
+
+
 
 });
 
