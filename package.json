@@ -8,6 +8,7 @@
     "devDependencies": {
         "@inertiajs/vue3": "^2.0.0",
         "@tailwindcss/forms": "^0.5.3",
+        "@tailwindcss/typography": "^0.5.16",
         "@vitejs/plugin-vue": "^5.0.0",
         "@vue/server-renderer": "^3.4.0",
         "autoprefixer": "^10.4.12",
@@ -21,9 +22,11 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@kangc/v-md-editor": "^2.3.18",
         "@phosphor-icons/vue": "^2.2.1",
         "@tailwindcss/line-clamp": "^0.4.4",
         "dayjs": "^1.11.13",
-        "lucide-vue-next": "^0.475.0"
+        "lucide-vue-next": "^0.475.0",
+        "marked": "^15.0.7"
     }
 }

@@ -69,8 +69,7 @@ export default {
         forms,
         require("@tailwindcss/line-clamp"),
         require("tailwindcss-animate"),
-
-
+        require('@tailwindcss/typography'),
     ],
 
 };

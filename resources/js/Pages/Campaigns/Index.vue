@@ -98,8 +98,8 @@ const closeModal = (type) => {
                     </div>
                     <div>
                         <label class="font-rpgSans text-sand-d8 text-xs font-thin">Descrição</label>
-                        <input v-model="form.description"
-                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"></input>
+                        <textarea v-model="form.description"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"></textarea>
                     </div>
                     <div>
                         <label class="font-rpgSans text-sand-d8 text-xs font-thin">Imagem URL</label>

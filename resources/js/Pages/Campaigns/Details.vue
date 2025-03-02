@@ -3,7 +3,9 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/Button.vue';
 import Modal from '@/Components/Modal.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
+
+import { marked } from "marked";
 
 import { FilePenLine, Save } from 'lucide-vue-next';
 
@@ -23,9 +25,29 @@ const props = defineProps({
 const isCopied = ref(false);
 let timeoutId = null;
 
-const editedCampaign = ref({ ...props.campaign });
-const editingInfos = ref(false);
+const editingTitle = ref(false);
+const editingDescription = ref(false);
 const editingImage = ref(false);
+
+const editedCampaign = ref({ ...props.campaign });
+
+watch(() => props.campaign, (newCampaign) => {
+    editedCampaign.value = { ...newCampaign };
+});
+
+// Computed para o background com fallback
+const backgroundStyle = computed(() => {
+    return {
+        backgroundImage: editedCampaign.value.image_url
+            ? `url(${editedCampaign.value.image_url})`
+            : 'url(/images/cover.jpg)'
+    }
+});
+
+// Computed para preview de markdown
+const parsedMarkdown = computed(() => {
+    return marked.parse(editedCampaign.value.description || '', { sanitize: true, gfm: true, breaks: true });
+});
 
 const campaignNameToDelete = ref('');
 const emailToLeave = ref('');
@@ -59,23 +81,42 @@ const copyCode = async () => {
     }
 };
 
-const toggleEditInfos = () => {
-    if (editingInfos.value) {
-        // Salvar alterações no backend
-        router.put(`/campaigns/${props.campaign.id}`, {
-            name: editedCampaign.value.name,
-            description: editedCampaign.value.description,
-        });
+// Função para salvar alterações do título
+const toggleEditTitle = async () => {
+    if (editingTitle.value) {
+        try {
+            router.put(`/campaigns/${props.campaign.id}`, {
+                name: editedCampaign.value.name,
+            });
+            // Mensagem de sucesso pode ser exibida aqui
+        } catch (error) {
+            console.error('Erro ao salvar nome:', error);
+        }
     }
-    editingInfos.value = !editingInfos.value;
+    editingTitle.value = !editingTitle.value;
 };
 
-const toggleEditImage = () => {
+// Função para salvar alterações da descrição
+const toggleEditDescription = async () => {
+    if (editingDescription.value) {
+        try {
+            router.put(`/campaigns/${props.campaign.id}`, {
+                description: editedCampaign.value.description,
+            });
+        } catch (error) {
+            console.error('Erro ao salvar descrição:', error);
+        }
+    }
+    editingDescription.value = !editingDescription.value;
+};
+
+// Função para salvar alterações da imagem
+const toggleEditImage = async () => {
     if (editingImage.value) {
         useForm({ image_url: editedCampaign.value.image_url }).put(`/campaigns/${props.campaign.id}`, {
             preserveScroll: true,
             onSuccess: () => {
-                router.reload({ only: ['campaign'] }); // Recarrega apenas os dados da campanha
+                router.reload({ only: ['campaign'] });
             },
         });
     }
@@ -118,163 +159,172 @@ const closeModal = (type) => {
     <Head title="Campanhas" />
     <AuthenticatedLayout>
         <div class="flex justify-center">
-            <div class="container gap-2 min-h-[350px] grid grid-cols-4 mb-8">
-                <div class="col-span-4 flex justify-between items-center bg-cover bg-center rounded-lg h-80 w-full"
-                    :style="{
-                        backgroundImage: editedCampaign.image_url ? `url(${editedCampaign.image_url})` : 'url(/images/cover.jpg)'
-                    }">
+            <div class="grid grid-cols-4 container gap-2 min-h-[350px] mb-8">
 
-                    <div class="p-4 flex flex-col gap-4 col-span-1 col-start-5">
-
-                        <label v-if="editingImage" for="editImage"
-                            class="font-rpgSans text-sand-d8 text-xs font-thin">Digite o URL da imagem</label>
-
-                        <input v-if="editingImage"
-                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"
-                            id="editImage" type="text" v-model="editedCampaign.image_url">
-
-                        <Button v-if="campaign.is_master" @click="toggleEditImage" formato="secondary" size="xs"> {{
-                            editingImage ? 'Salvar' :
-                                'Trocar imagem' }} </Button>
+                <!-- Grid col-3 row-1 order 1 -->
+                <div :class="campaign.is_master ? 'col-span-3' : 'col-span-4'"
+                    class="flex order-1 justify-between items-center bg-cover bg-center rounded-lg w-full min-h-[350px]"
+                    :style="backgroundStyle">
+                    <div class="p-4 flex justify-center items-center w-full">
+                        <input v-if="editingTitle" v-model="editedCampaign.name"
+                            class="text-sand-d6 font-rpgSans border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl" v-else>{{ campaign.name }}</h1>
                     </div>
                 </div>
-                <div
-                    class="col-span-4 order-1 md:order-2 md:col-span-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
-                    <h1 class="font-rpgSans text-sand-d6 text-2xl flex gap-4 justify-between items-center">
-                        <input v-if="editingInfos" v-model="editedCampaign.name"
-                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
-                        <span v-else>{{ campaign.name }}</span>
 
-                        <Button v-if="campaign.is_master" @click="toggleEditInfos" formato="secondary" size="icon">
-                            <FilePenLine v-if="!editingInfos" class="w-4 h-4" />
-                            <Save v-else class="w-4 h-4" />
-                        </Button>
-                    </h1>
-                    <p class="text-sand-d6">
-                        <textarea v-if="editingInfos" v-model="editedCampaign.description"
-                            class="text-sand-d6 mt-1 block w-full h-40 border-solid border-0 border-b border-sand-d8 bg-transparent "></textarea>
-                        <span v-else>{{ campaign.description }}</span>
-
+                <!-- Grid col-1 row-1 order 2 -->
+                <div v-if="campaign.is_master" class="order-2 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                    <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Convite</h1>
+                    <p class="mt-1 text-sm text-sand-d6">
+                        Copie o código e envie para o jogador. Eles poderão se juntar à sua campanha com ele.
                     </p>
+                    <Button @click="copyCode" formato="secondary" size="xs" :class="{ '!text-green-400': isCopied }">
+                        {{ isCopied ? 'Código Copiado!' : campaign.invite_code }}
+                    </Button>
                 </div>
-                <div class="flex flex-col gap-2 col-span-4 md:col-span-1">
-                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
-                        <h1 class="font-rpgSans text-sand-d6 text-2xl"> Ações</h1>
-                        <Button formato="primary" class="w-full" size="xs">Iniciar</Button>
-                        <p class="text-sand-d6 text-xs">Criado por {{ campaign.master.name }} em {{
-                            dayjs(campaign.created_at).format('DD/MM/YY') }} e atualizado pela última vez {{
-                                dayjs().locale(pt).to(campaign.updated_at) }}</p>
-                    </div>
-                    <div v-if="campaign.is_master" class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
-                        <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Convite</h1>
-                        <p class="mt-1 text-sm text-sand-d6">
-                            Copie o código e envie para o jogador. Eles poderão se juntar à sua campanha com ele.
-                        </p>
-                        <Button @click="copyCode" formato="secondary" size="xs"
-                            :class="{ '!text-green-400': isCopied }">
-                            {{ isCopied ? 'Código Copiado!' : campaign.invite_code }}
+                
+                <div  v-if="!campaign.is_master" class="order-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                    <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Personagens</h1>
+                </div>
+
+                <!-- Grid col-3 row-1 order 3 -->
+                <div
+                    class="col-span-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2"
+                    :class="{ 'order-3': campaign.is_master, 'order-2': !campaign.is_master }">
+                    <div v-if="editingDescription">Formatação: # Titulo | ## Subtitulo **Negrito** | </div>
+                    <textarea spellcheck="true" v-html="parsedMarkdown" v-if="editingDescription"
+                        v-model="editedCampaign.description"
+                        class="text-sand-d6 prose-headings:text-sand-d8 prose-headings:font-rpgSans prose-headings:font-normal prose-img:rounded-xl prose-a:text-mage-d10 prose-strong:text-sand-d6 prose-hr:border-charcoal-d8 prose-hr:my-4 hover:prose-a:text-mage-d8 scrollbar-d20 mt-1 w-full h-full p-4 bg-transparent border-none resize-none"></textarea>
+
+                    <div v-else
+                        class="text-sand-d6 prose-headings:text-sand-d8 prose-headings:font-rpgSans prose-headings:font-normal prose-img:rounded-xl prose-a:text-mage-d10 prose-strong:text-sand-d6 prose-hr:border-charcoal-d8 prose-hr:my-4 hover:prose-a:text-mage-d8 prose-code:p-2 prose-code:rounded-xl prose-code:text-charcoal-d8 prose-em:border-mage-d6"
+                        v-html="parsedMarkdown"></div>
+                </div>
+
+                <!-- Grid col-1 row-1 order 4 -->
+                <div v-if="campaign.is_master" class="order-4 col-span-1 bg-charcoal-d12 rounded-lg">
+                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
+                        <Button formato="primary" class="w-full" size="xs">Jogar agora</Button>
+                        <hr class="border-charcoal-d8 my-4">
+                        <Button @click="toggleEditImage" formato="secondary" size="xs">
+                            {{ editingImage ? 'Salvar imagem' : 'Editar imagem' }}
+                        </Button>
+                        <Button @click="toggleEditTitle" formato="secondary" size="xs">
+                            {{ editingTitle ? 'Salvar nome' : 'Editar nome' }}
+                        </Button>
+                        <Button @click="toggleEditDescription" formato="secondary" size="xs">
+                            {{ editingDescription ? 'Salvar descrição' : 'Editar descrição' }}
                         </Button>
                     </div>
+                </div>
 
-                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
-                        <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Jogadores</h1>
-                        <p class="text-sand-d6 text-xs" v-for="player in campaign.players">
-                            {{ player.name }} entrou na campanha {{
-                                dayjs().locale(pt).to(dayjs(player.pivot.joined_at).toISOString()) }}
-                        </p>
-                    </div>
-                    <div class="flex flex-row md:flex-col gap-2 ">
-                        <Button v-if="campaign.is_master" class="w-full" @click="openModal('delete')" formato="ghost"
-                            size="xs">Apagar campanha</Button>
+                <!-- Grid col-1 row-1 order 5 -->
 
-                        <Button class="w-full" @click="openModal('leave')" :disabled="campaign.players.length === 0"
-                            formato="ghost" size="xs">
-                            Sair da Campanha
-                        </Button>
-                    </div>
+                <div class="order-4 col-span-3 flex p-4 text-charcoal-d8">
+                    <p class="text-xs">Criado por {{ campaign.master.name }} em {{
+                        dayjs(campaign.created_at).format('DD/MM/YY') }} e atualizado pela última vez {{
+                            dayjs().locale(pt).to(campaign.updated_at) }}</p>
+                </div>
 
-                    <Modal :show="modals.delete" @close="closeModal('delete')">
-                        <div class="p-4">
-                            <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja deletar esta campanha?
-                            </h1>
-                            <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
-                            <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha: <strong>{{
+                <!-- Grid col-1 order 5 -->
+
+                <div class="col-span-1 order-5 flex gap-2 items-start">
+                    <Button v-if="campaign.is_master" class="w-full" @click="openModal('delete')" formato="ghost"
+                        size="xs">Apagar campanha</Button>
+
+                    <Button class="w-full" @click="openModal('leave')" :disabled="campaign.players.length === 0"
+                        formato="ghost" size="xs">
+                        Sair da Campanha
+                    </Button>
+                </div>
+
+
+                <Modal :show="modals.delete" @close="closeModal('delete')">
+                    <div class="p-4">
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja deletar esta
+                            campanha?
+                        </h1>
+                        <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
+                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:
+                            <strong>{{
                                 campaign.name }}</strong>
-                            </p>
-                            <input v-model="campaignNameToDelete"
-                                class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                        </p>
+                        <input v-model="campaignNameToDelete"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
 
-                            <div class="flex gap-2 mt-4">
-                                <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
+                        <div class="flex gap-2 mt-4">
+                            <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
 
-                                <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
-                                    :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
-                            </div>
+                            <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
+                                :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
                         </div>
-                    </Modal>
+                    </div>
+                </Modal>
 
-                    <Modal :show="modals.leave" @close="closeModal('leave')">
-                        <div v-if="campaign.is_master">
-                            <div class="p-4">
-                                <h1 class="font-rpgSans text-sand-d6 text-2xl">Você é o mestre desta campanha!</h1>
-                                <p class="text-sand-d6 text-sm mt-2">Para sair da campanha, você deve transferir o
-                                    mestre para outro jogador.</p>
+                <Modal :show="modals.leave" @close="closeModal('leave')">
+                    <div v-if="campaign.is_master">
+                        <div class="p-4">
+                            <h1 class="font-rpgSans text-sand-d6 text-2xl">Você é o mestre desta campanha!</h1>
+                            <p class="text-sand-d6 text-sm mt-2">Para sair da campanha, você deve transferir o
+                                mestre para outro jogador.</p>
 
-                                <p class="text-sand-d6 text-sm mt-2">Selecione o novo mestre:</p>
-                                <select v-model="newMaster"
-                                    class="mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent text-white">
-                                    <option class="text-black" v-for="player in campaign.players" :value="player.id">{{
-                                        player.name }}
-                                    </option>
-                                </select>
-
-                                <div class="flex gap-2 mt-4">
-                                    <Button @click="closeModal('leave')" formato="secondary" size="xs">Cancelar</Button>
-                                    <Button @click="transferCampaign()" formato="ghost" size="xs">Transferir
-                                        mestre</Button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-else class="p-4">
-                            <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja sair desta campanha?
-                            </h1>
-                            <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da e-mail:
-                            </p>
-
-                            <input v-model="emailToLeave"
-                                class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                            <p class="text-sand-d6 text-sm mt-2">Selecione o novo mestre:</p>
+                            <select v-model="newMaster"
+                                class="mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent text-white">
+                                <option class="text-black" v-for="player in campaign.players" :value="player.id">{{
+                                    player.name }}
+                                </option>
+                            </select>
 
                             <div class="flex gap-2 mt-4">
                                 <Button @click="closeModal('leave')" formato="secondary" size="xs">Cancelar</Button>
-
-                                <Button @click="leaveCampaign()" formato="ghost" size="xs"
-                                    :disabled="$page.props.auth.user.email !== emailToLeave">Sair da campanha</Button>
+                                <Button @click="transferCampaign()" formato="ghost" size="xs">Transferir
+                                    mestre</Button>
                             </div>
                         </div>
-                    </Modal>
+                    </div>
 
-                    <Modal :show="modals.transfer" @close="closeModal('delete')">
-                        <div class="p-4">
-                            <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja deletar esta campanha?
-                            </h1>
-                            <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
-                            <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha: <strong>{{
+                    <div v-else class="p-4">
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja sair desta
+                            campanha?
+                        </h1>
+                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da e-mail:
+                        </p>
+
+                        <input v-model="emailToLeave"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
+
+                        <div class="flex gap-2 mt-4">
+                            <Button @click="closeModal('leave')" formato="secondary" size="xs">Cancelar</Button>
+
+                            <Button @click="leaveCampaign()" formato="ghost" size="xs"
+                                :disabled="$page.props.auth.user.email !== emailToLeave">Sair da
+                                campanha</Button>
+                        </div>
+                    </div>
+                </Modal>
+
+                <Modal :show="modals.transfer" @close="closeModal('delete')">
+                    <div class="p-4">
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja deletar esta
+                            campanha?
+                        </h1>
+                        <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
+                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:
+                            <strong>{{
                                 campaign.name }}</strong>
-                            </p>
-                            <input v-model="campaignNameToDelete"
-                                class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                        </p>
+                        <input v-model="campaignNameToDelete"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
 
-                            <div class="flex gap-2 mt-4">
-                                <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
+                        <div class="flex gap-2 mt-4">
+                            <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
 
-                                <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
-                                    :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
-                            </div>
+                            <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
+                                :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
                         </div>
-                    </Modal>
-
-                </div>
+                    </div>
+                </Modal>
             </div>
         </div>
     </AuthenticatedLayout>

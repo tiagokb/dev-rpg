@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Parsedown;
+
 use App\Models\Campaign;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -50,6 +52,10 @@ class CampaignController extends Controller
         try {
             $campaign = Campaign::with(['master', 'players'])->findOrFail($id);
             Gate::authorize('view', $campaign);
+
+            $parsedown = new Parsedown();
+            $campaign->description_html = $parsedown->text($campaign->description);
+
             return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
         } catch (ModelNotFoundException $e) {
             return redirect()->route('campaigns.index')->with('error', 'Campanha não encontrada.');
