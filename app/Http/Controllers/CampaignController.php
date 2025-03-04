@@ -30,17 +30,21 @@ class CampaignController extends Controller
     {
         // Validação dos dados
         $request->validate([
-            'name' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|string',
+            'cover_img_url' => 'nullable|url',
+            'is_open' => 'nullable|boolean',
         ]);
 
         // Criar a campanha
         $campaign = Campaign::create([
-            'name' => $request->input('name'),
+            'title' => $request->input('title'),
+            'subtitle' => $request->input('subtitle'),
             'description' => $request->input('description'),
-            'image_url' => $request->input('image_url'),
-            'user_id' => auth()->id(), // Usuário logado é o mestre
+            'cover_img_url' => $request->input('cover_img_url'),
+            'is_open' => $request->input('is_open', true), // Padrão: aberta
+            'user_id' => auth()->id(), // Mestre
         ]);
 
         return redirect()->route('campaigns.index')->with('success', 'Campanha criada com sucesso!');
@@ -62,12 +66,29 @@ class CampaignController extends Controller
         }
     }
 
+    public function removePlayer(Request $request, Campaign $campaign, $player)
+    {
+        try {
+            Gate::authorize('removePlayer', $campaign);
+            if (!$campaign->players()->find($player)) {
+                return back()->with('error', 'Jogador não encontrado na campanha.');
+            }
+    
+            $campaign->players()->detach($player);
+            return back()->with('success', 'Jogador removido com sucesso!');
+    
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao remover jogador da campanha.');
+        }
+    }
+
+
     public function update(Request $request, Campaign $campaign)
     {
 
         try {
             $auth = Gate::authorize('update', $campaign);
-            $campaign->update($request->only(['name', 'image_url', 'description']));
+            $campaign->update($request->only(['title', 'subtitle', 'is_open', 'cover_img_url', 'description']));
             return back()->with('success', $auth->message());
         } catch (\Exception $e) {
 
@@ -108,13 +129,13 @@ class CampaignController extends Controller
 
             if (!$campaign) {
                 return redirect()->route('campaigns.index')->with('error', 'Esta campanha não existe mais.');
-            }            
+            }
 
             $auth = Gate::authorize('leave', $campaign);
             $campaign->players()->detach(auth()->user()->id);
 
             return redirect()->route('campaigns.index')->with('success', $auth->message());
-            
+
         } catch (ModelNotFoundException $e) {
             // Trata o caso em que a campanha não é encontrada
             return redirect()->route('campaigns.index')->with('error', 'Esta campanha não existe mais.');

@@ -12,9 +12,12 @@ const props = defineProps({
 });
 
 const form = useForm({
-    name: '',
+    title: '',
+    subtitle: '',
     description: '',
-    image_url: '',
+    cover_img_url: '',
+    max_players: 10,
+    is_open: false
 });
 
 const submit = () => {
@@ -86,24 +89,34 @@ const closeModal = (type) => {
                     <header>
                         <h1 class="font-rpgSans text-white text-2xl">Criar nova campanha</h1>
                         <p class="mt-1 text-sm text-sand-d6">
-                            Certifique-se de que sua conta esteja usando uma senha longa e aleatória para permanecer
-                            seguro.
+                            Crie uma nova campanha para jogar com seus amigos
                         </p>
                     </header>
                     <div>
-                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Nome da Campanha</label>
-                        <input v-model="form.name" type="text"
+                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Título da Campanha</label>
+                        <input v-model="form.title" type="text"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"
                             required>
                     </div>
                     <div>
-                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Descrição</label>
-                        <textarea v-model="form.description"
-                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"></textarea>
+                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Subtitulo da Campanha</label>
+                        <input v-model="form.subtitle" type="text"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"
+                            required>
                     </div>
                     <div>
-                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Imagem URL</label>
-                        <input v-model="form.image_url"
+                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">Quantidade de Jogadores</label>
+                        <input v-model="form.max_players" type="number"
+                            class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent"
+                            required>
+                    </div>
+                    <div>
+                        Manter campanha aberta?
+                        <input v-model="form.is_open" type="checkbox" class="text-sand-d6 mt-1">
+                    </div>
+                    <div>
+                        <label class="font-rpgSans text-sand-d8 text-xs font-thin">URL da Capa</label>
+                        <input v-model="form.cover_img_url"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent">
                     </div>
                     <Button formato="primary" class="mt-4 w-full" type="submit">Criar Campanha</Button>

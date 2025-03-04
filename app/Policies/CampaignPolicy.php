@@ -12,11 +12,15 @@ class CampaignPolicy
 
     {
 
+        if ($campaign->is_open === false) {
+            return Response::deny('Esta campanha está fechada para novos jogadores.');
+        }
+
         if ($user->id === $campaign->user_id) {
             return Response::deny('Você é o mestre desta campanha.');
         }
 
-        if ($campaign->players()->count() >= Campaign::max_players) {
+        if ($campaign->players()->count() >= $campaign->max_players) {
             return Response::deny('Limite de jogadores atingido.');
         }
 
@@ -25,6 +29,14 @@ class CampaignPolicy
             ? Response::deny('Você já está participando desta campanha.')
             : Response::allow('Seja bem vindo');
     }
+
+    public function removePlayer(User $user, Campaign $campaign): Response
+    {
+        return $user->id === $campaign->user_id
+            ? Response::allow('Você pode remover jogadores desta campanha.')
+            : Response::deny('Você não tem permissão para remover jogadores desta campanha.');
+    }
+    
 
     public function limit(User $user, Campaign $campaign): Response
     {

@@ -38,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/campaigns/join', [CampaignController::class, 'join'])->name('campaigns.join');
     Route::put('/campaigns/transfer/{campaign}', [CampaignController::class, 'transfer'])->name('campaigns.transfer');
     Route::put('/campaigns/leave/{campaign}', [CampaignController::class, 'leave'])->name('campaigns.leave');
+    Route::delete('/campaigns/remove/{campaign}/{player}', [CampaignController::class, 'removePlayer'])->name('campaigns.removePlayer');
     # CHARACTER REGION
 
 

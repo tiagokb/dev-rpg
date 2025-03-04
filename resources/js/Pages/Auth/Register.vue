@@ -24,7 +24,7 @@ const submit = () => {
         <Head title="Criar sua conta" />
 
         <div class="flex justify-center">
-            <div class="container flex gap-2 min-h-[750px]">
+            <div class="container flex gap-2 h-4/6">
 
                 <div class="flex justify-between items-center bg-mageBG bg-cover bg-center rounded-lg w-4/6">
                 </div>

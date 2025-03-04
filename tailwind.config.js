@@ -62,6 +62,13 @@ export default {
                 fade: 'fade 1s ease-in-out forwards',
                 slideLeft: 'slideLeft 1s ease-in-out forwards',
             },
+            typography: {
+                DEFAULT: {
+                  css: {
+                    maxWidth: '100ch', // add required value here
+                  }
+                }
+              }
         },
     },
 
