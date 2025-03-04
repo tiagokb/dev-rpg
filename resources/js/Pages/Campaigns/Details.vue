@@ -1,36 +1,62 @@
 <script setup>
+import { ref, watch, computed } from 'vue';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import IconMaster from '@/Components/IconMaster.vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import Button from '@/Components/Button.vue';
 import Modal from '@/Components/Modal.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, watch, computed } from 'vue';
-
 import { marked } from "marked";
-
-import { FilePenLine, Save } from 'lucide-vue-next';
-
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import pt from 'dayjs/locale/pt-br'
-import utc from 'dayjs/plugin/utc'
+import { Lock, LockOpen, UserRoundMinus } from 'lucide-vue-next';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import pt from 'dayjs/locale/pt-br';
+import utc from 'dayjs/plugin/utc';
 
 dayjs.extend(relativeTime);
-dayjs.extend(utc)
-
+dayjs.extend(utc);
 
 const props = defineProps({
     campaign: Object,
 });
 
+const removePlayerData = ref(null);
+
 const isCopied = ref(false);
 let timeoutId = null;
 
-const editingTitle = ref(false);
+const editingCampaign = ref(false);
 const editingDescription = ref(false);
-const editingImage = ref(false);
 
 const editedCampaign = ref({ ...props.campaign });
 
+// Variáveis para monitorar o estado da imagem
+const imageLoaded = ref(false);
+const imageError = ref(false);
+
+// Sempre que a URL da imagem mudar, dispara a verificação
+watch(
+    () => editedCampaign.value.cover_img_url,
+    (newUrl) => {
+        if (newUrl) {
+            const img = new Image();
+            img.onload = () => {
+                imageLoaded.value = true;
+                imageError.value = false;
+            };
+            img.onerror = () => {
+                imageLoaded.value = false;
+                imageError.value = true;
+            };
+            img.src = newUrl;
+        } else {
+            imageLoaded.value = false;
+            imageError.value = true;
+        }
+    },
+    { immediate: true }
+);
+
+// Atualiza o objeto editado se a prop mudar
 watch(() => props.campaign, (newCampaign) => {
     editedCampaign.value = { ...newCampaign };
 });
@@ -38,25 +64,26 @@ watch(() => props.campaign, (newCampaign) => {
 // Computed para o background com fallback
 const backgroundStyle = computed(() => {
     return {
-        backgroundImage: editedCampaign.value.image_url
-            ? `url(${editedCampaign.value.image_url})`
-            : 'url(/images/cover.jpg)'
-    }
+        backgroundImage: editedCampaign.value.cover_img_url
+            ? `url(${editedCampaign.value.cover_img_url})`
+            : 'url(/images/cover.jpg)',
+    };
 });
 
 // Computed para preview de markdown
 const parsedMarkdown = computed(() => {
-    return marked.parse(editedCampaign.value.description || '', { sanitize: true, gfm: true, breaks: true });
+    return marked.parse(editedCampaign.value.description || '', {
+        sanitize: true,
+        breaks: true,
+    });
 });
 
-const campaignNameToDelete = ref('');
-const emailToLeave = ref('');
-
+const campaignNameConfirm = ref('');
 const newMaster = ref(null);
 
 const showFeedbackCode = () => {
     isCopied.value = true;
-    if (timeoutId) clearTimeout(timeoutId);
+    clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
         isCopied.value = false;
     }, 2000);
@@ -65,38 +92,39 @@ const showFeedbackCode = () => {
 const copyCode = async () => {
     try {
         await navigator.clipboard.writeText(props.campaign.invite_code);
-        showFeedbackCode()
+        showFeedbackCode();
     } catch (err) {
         console.error('Falha ao copiar código:', err);
-        // Fallback para navegadores antigos
-        showFeedbackCode()
-
-        const textarea = document.createElement('textarea');
-        textarea.value = props.campaign.invite_code;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-
-    }
-};
-
-// Função para salvar alterações do título
-const toggleEditTitle = async () => {
-    if (editingTitle.value) {
         try {
-            router.put(`/campaigns/${props.campaign.id}`, {
-                name: editedCampaign.value.name,
-            });
-            // Mensagem de sucesso pode ser exibida aqui
-        } catch (error) {
-            console.error('Erro ao salvar nome:', error);
+            const textarea = document.createElement('textarea');
+            textarea.value = props.campaign.invite_code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showFeedbackCode();
+        } catch (fallbackError) {
+            console.error('Falha no fallback:', fallbackError);
+            alert('Não foi possível copiar o código. Tente novamente.');
         }
     }
-    editingTitle.value = !editingTitle.value;
 };
 
-// Função para salvar alterações da descrição
+const toggleEditCampaign = async () => {
+    if (editingCampaign.value) {
+        try {
+            router.put(`/campaigns/${props.campaign.id}`, {
+                title: editedCampaign.value.title,
+                subtitle: editedCampaign.value.subtitle,
+                cover_img_url: editedCampaign.value.cover_img_url,
+            });
+        } catch (error) {
+            console.error('Erro ao salvar:', error);
+        }
+    }
+    editingCampaign.value = !editingCampaign.value;
+};
+
 const toggleEditDescription = async () => {
     if (editingDescription.value) {
         try {
@@ -110,48 +138,57 @@ const toggleEditDescription = async () => {
     editingDescription.value = !editingDescription.value;
 };
 
-// Função para salvar alterações da imagem
-const toggleEditImage = async () => {
-    if (editingImage.value) {
-        useForm({ image_url: editedCampaign.value.image_url }).put(`/campaigns/${props.campaign.id}`, {
-            preserveScroll: true,
-            onSuccess: () => {
-                router.reload({ only: ['campaign'] });
-            },
+const lockCampaignInvite = async () => {
+    try {
+        const newStatus = !props.campaign.is_open;
+        editedCampaign.value.is_open = newStatus;
+        router.put(`/campaigns/${props.campaign.id}`, {
+            is_open: editedCampaign.value.is_open,
         });
+    } catch (error) {
+        console.error('Erro ao alterar status da campanha:', error);
     }
-    editingImage.value = !editingImage.value;
 };
 
-const leaveCampaign = () => {
-
-    router.put(route('campaigns.leave', props.campaign.id))
-    closeModal('leave')
+const removePlayerModal = (playerName, playerId) => {
+    removePlayerData.value = {
+        playerName,
+        playerId
+    };
+    openModal('removePlayer')
 }
+
+const leaveCampaign = () => {
+    router.put(route('campaigns.leave', props.campaign.id));
+    closeModal('leave');
+};
 
 const transferCampaign = async () => {
     router.put(route('campaigns.transfer', props.campaign.id), {
-        new_master_id: newMaster.value
-    })
-    closeModal('leave')
-}
+        new_master_id: newMaster.value,
+    });
+    closeModal('leave');
+};
 
 const deleteCampaign = (campaignId) => {
     router.delete(route('campaigns.destroy', campaignId));
 };
 
+const removePlayerCampaign = (playerId) => {
+    router.delete(route('campaigns.removePlayer', { campaign: props.campaign.id, player: playerId }));
+    closeModal('removePlayer');
+};
+
 const modals = ref({
     delete: false,
-    leave: false
+    leave: false,
+    removePlayer: false,
 });
 
 const openModal = (type) => (modals.value[type] = true);
-
 const closeModal = (type) => {
     modals.value[type] = false;
 };
-
-
 </script>
 
 <template>
@@ -161,83 +198,126 @@ const closeModal = (type) => {
         <div class="flex justify-center">
             <div class="grid grid-cols-4 container gap-2 min-h-[350px] mb-8">
 
-                <!-- Grid col-3 row-1 order 1 -->
-                <div :class="campaign.is_master ? 'col-span-3' : 'col-span-4'"
-                    class="flex order-1 justify-between items-center bg-cover bg-center rounded-lg w-full min-h-[350px]"
+                <!-- Área de capa com background (Grid Col-2 e Order-1)-->
+                <!--  Ações de Editar (Apenas para o Mestre) Grid Col-1 Order-3 -->
+
+                <div :class="campaign.is_master ? 'col-span-3' : 'col-span-3'"
+                    class="relative flex order-2 justify-between items-center bg-cover bg-center rounded-lg w-full min-h-[300px]"
                     :style="backgroundStyle">
-                    <div class="p-4 flex justify-center items-center w-full">
-                        <input v-if="editingTitle" v-model="editedCampaign.name"
-                            class="text-sand-d6 font-rpgSans border-solid border-0 border-b border-sand-d8 bg-transparent" />
-                        <h1 class="font-rpgSans text-sand-d6 text-2xl" v-else>{{ campaign.name }}</h1>
+                    <IconMaster class="absolute top-2 left-2 z-10" v-if="campaign.is_master" />
+
+                    <div class="px-8 py-4 flex justify-between items-center w-full">
+                        <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+                        <div v-if="editingCampaign" class="flex flex-col gap-4">
+                            <input v-model="editedCampaign.title"
+                                class="text-sand-d6 z-10 font-rpgSans border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                            <input v-model="editedCampaign.subtitle"
+                                class="text-sand-d6 z-10 font-rpgSans border-solid border-0 border-b border-sand-d8 bg-transparent" />
+                            <input v-model="editedCampaign.cover_img_url"
+                                class="text-sand-d6 z-10 font-rpgSans border-solid border-0 border-b border-sand-d8 bg-transparent" />
+
+                        </div>
+                        <div v-else class="flex flex-col justify-center">
+                            <h2 class="relative z-10 font-rpgSans text-2xl text-sand-d8">
+                                {{ campaign.title }}
+                            </h2>
+                            <h3 class="relative z-10 font-rpgSans text-sm text-sand-d8">
+                                {{ campaign.subtitle }}
+                            </h3>
+                        </div>
+
+                        <!-- Indicador de status da imagem -->
+                        <div v-if="imageError" class="text-red-500 text-sm mt-2">
+                            Ops! Não foi possível carregar a imagem.
+                        </div>
+                        <div v-else-if="!imageLoaded" class="text-gray-500 text-sm mt-2">
+                            Carregando imagem...
+                        </div>
+
+                        <div v-if="campaign.is_master" class="order-3 z-10 bg-charcoal-d12 rounded-lg">
+                            <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
+                                <Button formato="primary" class="w-full" size="xs">Jogar agora</Button>
+                                <hr class="border-charcoal-d8 my-4">
+                                <Button @click="toggleEditCampaign" formato="ghost" size="xs">
+                                    {{ editingCampaign ? 'Salvar' : 'Editar campanha' }}
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Grid col-1 row-1 order 2 -->
-                <div v-if="campaign.is_master" class="order-2 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                <!-- Convite e Campanha Lock (Grid Col-1 Order-2)-->
+                <div v-if="campaign.is_master" class="order-1 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
                     <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Convite</h1>
                     <p class="mt-1 text-sm text-sand-d6">
                         Copie o código e envie para o jogador. Eles poderão se juntar à sua campanha com ele.
                     </p>
-                    <Button @click="copyCode" formato="secondary" size="xs" :class="{ '!text-green-400': isCopied }">
+                    <Button @click="copyCode" formato="ghost" size="xs" :class="{ '!text-green-400': isCopied }">
                         {{ isCopied ? 'Código Copiado!' : campaign.invite_code }}
                     </Button>
-                </div>
-                
-                <div  v-if="!campaign.is_master" class="order-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
-                    <h1 class="font-rpgSans text-sand-d6 text-2xl flex">Personagens</h1>
-                </div>
-
-                <!-- Grid col-3 row-1 order 3 -->
-                <div
-                    class="col-span-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2"
-                    :class="{ 'order-3': campaign.is_master, 'order-2': !campaign.is_master }">
-                    <div v-if="editingDescription">Formatação: # Titulo | ## Subtitulo **Negrito** | </div>
-                    <textarea spellcheck="true" v-html="parsedMarkdown" v-if="editingDescription"
-                        v-model="editedCampaign.description"
-                        class="text-sand-d6 prose-headings:text-sand-d8 prose-headings:font-rpgSans prose-headings:font-normal prose-img:rounded-xl prose-a:text-mage-d10 prose-strong:text-sand-d6 prose-hr:border-charcoal-d8 prose-hr:my-4 hover:prose-a:text-mage-d8 scrollbar-d20 mt-1 w-full h-full p-4 bg-transparent border-none resize-none"></textarea>
-
-                    <div v-else
-                        class="text-sand-d6 prose-headings:text-sand-d8 prose-headings:font-rpgSans prose-headings:font-normal prose-img:rounded-xl prose-a:text-mage-d10 prose-strong:text-sand-d6 prose-hr:border-charcoal-d8 prose-hr:my-4 hover:prose-a:text-mage-d8 prose-code:p-2 prose-code:rounded-xl prose-code:text-charcoal-d8 prose-em:border-mage-d6"
-                        v-html="parsedMarkdown"></div>
+                    <Button @click="lockCampaignInvite" size="xs" formato="ghost" class="text-xs" fontType=""
+                        :class="campaign.is_open ? 'text-green-400' : 'text-red-500'">
+                        <component :is="campaign.is_open ? LockOpen : Lock" :size="16" />
+                        {{ campaign.is_open ? 'Campanha aberta' : 'Campanha fechada' }}
+                    </Button>
                 </div>
 
-                <!-- Grid col-1 row-1 order 4 -->
-                <div v-if="campaign.is_master" class="order-4 col-span-1 bg-charcoal-d12 rounded-lg">
-                    <div class="flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
-                        <Button formato="primary" class="w-full" size="xs">Jogar agora</Button>
-                        <hr class="border-charcoal-d8 my-4">
-                        <Button @click="toggleEditImage" formato="secondary" size="xs">
-                            {{ editingImage ? 'Salvar imagem' : 'Editar imagem' }}
-                        </Button>
-                        <Button @click="toggleEditTitle" formato="secondary" size="xs">
-                            {{ editingTitle ? 'Salvar nome' : 'Editar nome' }}
-                        </Button>
-                        <Button @click="toggleEditDescription" formato="secondary" size="xs">
-                            {{ editingDescription ? 'Salvar descrição' : 'Editar descrição' }}
+                <!-- Personagens (Apenas para jogadores) Order-3 -->
+                <div v-if="!campaign.is_master" class="order-3 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                    <h1 class="font-rpgSans text-sand-d6">Personagens</h1>
+                    <Button formato="primary" class="w-full" size="xs">Jogar agora</Button>
+                </div>
+
+                <!-- Descrição da Campanha (Grid Col-3 Order-4) -->
+                <div class="col-span-3 order-4 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-2">
+                    <Button @click="toggleEditDescription" formato="ghost" size="xs" v-if="campaign.is_master">{{
+                        editingDescription ? 'Salvar' : 'Editar descrição' }}</Button>
+
+                    <div class="flex flex-col gap-4">
+                        <textarea v-if="editingDescription" v-model="editedCampaign.description"
+                            class="text-sand-d6 bg-charcoal-d20 prose markdown scrollbar-d20 mt-1 w-full h-full p-4 max-h-[450px] overflow-y-auto resize-none"></textarea>
+
+                        <div v-else class="prose markdown" v-html="parsedMarkdown"></div>
+
+                        <div v-if="editingDescription" v-html="parsedMarkdown" class="text-sand-d6  prose markdown scrollbar-d20 mt-1 w-full h-full p-4 max-h-[450px] overflow-y-auto"></div>
+                    </div>
+                </div>
+                <!-- Jogadores (Col-1 Order-5) -->
+                <div class="order-5 col-span-1 flex flex-col p-8 bg-charcoal-d12 rounded-lg gap-4">
+                    <h1 class="font-rpgSans text-sand-d6">Jogadores</h1>
+                    <div v-for="player in campaign.players" :key="player.id"
+                        class="flex justify-between items-center pb-2 border-b border-0 border-charcoal-d10">
+                        <div class="flex flex-col">
+                            <p class="text-sand-d6 text-xs">{{ player.name }}</p>
+                            <span class="text-sand-d6 text-xs">{{ dayjs().locale(pt).to(player.pivot.joined_at)
+                            }}</span>
+                        </div>
+                        <Button @click="removePlayerModal(player.name, player.id)" formato="ghost" size="xs"
+                            v-if="campaign.is_master">
+                            <UserRoundMinus :size="12" />
                         </Button>
                     </div>
                 </div>
 
-                <!-- Grid col-1 row-1 order 5 -->
-
-                <div class="order-4 col-span-3 flex p-4 text-charcoal-d8">
+                <!-- Informações da Campanha (Col-3 Order-5) -->
+                <div class="order-5 col-span-3 flex p-4 text-charcoal-d8">
                     <p class="text-xs">Criado por {{ campaign.master.name }} em {{
                         dayjs(campaign.created_at).format('DD/MM/YY') }} e atualizado pela última vez {{
                             dayjs().locale(pt).to(campaign.updated_at) }}</p>
+
                 </div>
 
-                <!-- Grid col-1 order 5 -->
-
-                <div class="col-span-1 order-5 flex gap-2 items-start">
-                    <Button v-if="campaign.is_master" class="w-full" @click="openModal('delete')" formato="ghost"
+                <!-- Ações de Deletar e Sair (Col-1 Order-6) -->
+                <div class="col-span-1 order-6 flex flex-col gap-2 items-start">
+                    <Button v-if="campaign.is_master" class="w-full" @click="openModal('delete')" formato="secondary"
                         size="xs">Apagar campanha</Button>
 
                     <Button class="w-full" @click="openModal('leave')" :disabled="campaign.players.length === 0"
                         formato="ghost" size="xs">
                         Sair da Campanha
                     </Button>
-                </div>
 
+                </div>
 
                 <Modal :show="modals.delete" @close="closeModal('delete')">
                     <div class="p-4">
@@ -247,16 +327,16 @@ const closeModal = (type) => {
                         <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
                         <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:
                             <strong>{{
-                                campaign.name }}</strong>
+                                campaign.title }}</strong>
                         </p>
-                        <input v-model="campaignNameToDelete"
+                        <input v-model="campaignNameConfirm"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
 
                         <div class="flex gap-2 mt-4">
                             <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
 
                             <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
-                                :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
+                                :disabled="campaignNameConfirm !== campaign.title">Deletar</Button>
                         </div>
                     </div>
                 </Modal>
@@ -288,43 +368,42 @@ const closeModal = (type) => {
                         <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja sair desta
                             campanha?
                         </h1>
-                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da e-mail:
+                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:
                         </p>
 
-                        <input v-model="emailToLeave"
+                        <input v-model="campaignNameConfirm"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
 
                         <div class="flex gap-2 mt-4">
                             <Button @click="closeModal('leave')" formato="secondary" size="xs">Cancelar</Button>
 
                             <Button @click="leaveCampaign()" formato="ghost" size="xs"
-                                :disabled="$page.props.auth.user.email !== emailToLeave">Sair da
+                                :disabled="campaignNameConfirm !== campaign.title">Sair da
                                 campanha</Button>
                         </div>
                     </div>
                 </Modal>
 
-                <Modal :show="modals.transfer" @close="closeModal('delete')">
+                <Modal :show="modals.removePlayer" @close="closeModal('removePlayer')">
                     <div class="p-4">
-                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Tem certeza que deseja deletar esta
-                            campanha?
-                        </h1>
+                        <h1 class="font-rpgSans text-sand-d6 text-2xl">Você tem certeza que deseja remover {{
+                            removePlayerData.playerName }} da campanha {{ campaign.title }}?</h1>
+
                         <p class="text-sm mt-2 text-red-600">Esta ação é irreversível!</p>
-                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:
-                            <strong>{{
-                                campaign.name }}</strong>
-                        </p>
-                        <input v-model="campaignNameToDelete"
+                        <p class="text-sand-d6 text-sm mt-2">Para confirmar, digite o nome da campanha:</p>
+
+                        <input v-model="campaignNameConfirm"
                             class="text-sand-d6 mt-1 block w-full border-solid border-0 border-b border-sand-d8 bg-transparent" />
 
                         <div class="flex gap-2 mt-4">
-                            <Button @click="closeModal('delete')" formato="secondary" size="xs">Cancelar</Button>
+                            <Button @click="closeModal('removePlayer')" formato="secondary" size="xs">Cancelar</Button>
 
-                            <Button @click="deleteCampaign(campaign.id)" formato="ghost" size="xs"
-                                :disabled="campaignNameToDelete !== campaign.name">Deletar</Button>
+                            <Button @click="removePlayerCampaign(removePlayerData.playerId)" formato="ghost" size="xs"
+                                :disabled="campaignNameConfirm !== campaign.title">Deletar</Button>
                         </div>
                     </div>
                 </Modal>
+
             </div>
         </div>
     </AuthenticatedLayout>

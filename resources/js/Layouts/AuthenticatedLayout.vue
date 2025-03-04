@@ -50,7 +50,7 @@ onMounted(() => {
         <div class="flex justify-center bg-charcoal-d20">
             <div class="container py-8 md:flex-row flex-col flex gap-3 justify-between items-center">
 
-                <div class="flex gap-2">
+                <div class="flex gap-2 justify-center items-center">
                     <Link :href="route('campaigns.index')">
                     <ApplicationLogo class="h-14 w-14  text-gray-500" />
                     </Link>
@@ -73,7 +73,7 @@ onMounted(() => {
         </div>
 
         <div v-show="viewToast && $page.props.flash.success"
-            class="flex flex-col items-center gap-4 w-[300px] justify-between fixed top-40 text-sm right-8 rounded-xl bg-charcoal-d12 border border-charcoal-d10 px-4 py-4 overflow-hidden animate-in slide-in-from-right-8">
+            class="z-50 flex flex-col items-center gap-4 w-[300px]justify-between fixed top-8 left-[calc(50%-150px)] text-sm rounded-xl bg-charcoal-d12 border border-charcoal-d10 px-4 py-4 overflow-hidden animate-in slide-in-from-right-8">
             <button @click="viewToast = false" class="flex items-center gap-2">
                 <span class="text-sand-d6">{{ $page.props.flash.success }}</span>
             </button>
@@ -82,7 +82,7 @@ onMounted(() => {
 
 
         <div v-show="viewToast && $page.props.flash.error"
-            class="flex flex-col items-center w-[300px] justify-between fixed top-40 text-sm right-8 rounded-xl bg-charcoal-d12 border border-charcoal-d10 px-8 py-4 overflow-hidden">
+            class="z-50 flex flex-col items-center w-[300px] justify-between fixed top-40 text-sm right-8 rounded-xl bg-charcoal-d12 border border-charcoal-d10 px-8 py-4 overflow-hidden">
             <button @click="viewToast = false" class="flex items-center justify-start gap-2">
                 <span class="text-sand-d6">{{ $page.props.flash.error }}</span>
             </button>

@@ -9,3 +9,17 @@
     dark:[&::-webkit-scrollbar-track]:bg-neutral-700
     dark:[&::-webkit-scrollbar-thumb]:bg-neutral-500
 }
+
+.markdown {
+    @apply
+    prose-headings:text-sand-d8
+    prose-headings:font-rpgSans
+    prose-headings:font-normal
+    prose-p:text-sand-d6
+    prose-img:rounded-xl
+    prose-a:text-mage-d10
+    prose-strong:text-sand-d6
+    prose-hr:border-charcoal-d8
+    hover:prose-a:text-mage-d8
+    prose-hr:my-4
+}

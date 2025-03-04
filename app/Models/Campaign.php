@@ -3,6 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Observers\CampaignObserver;
@@ -13,28 +14,23 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 
 class Campaign extends Model
 {
-    public const max_players = 100;
 
     protected $fillable = [
-        'name',
-        'description',
-        'image_url',
-        'user_id'
+        'title', // Título principal
+        'subtitle', // Subtítulo
+        'description', // Descrição geral
+        'cover_img_url', // URL da imagem de capa
+        'max_players', // Número máximo de jogadores
+        'is_open', // Status de abertura (true/false)
+        'user_id' // ID do mestre
     ];
 
-    protected function createdAt(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value,
-        );
-    }
+    protected $casts = [
+        'is_open' => 'boolean', // Define o campo como booleano
+    ];
 
-    protected function updatedAt(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => $value,
-        );
-    }
+    protected $appends = ['is_master'];
+
 
     public function master(): BelongsTo
     {
@@ -46,7 +42,38 @@ class Campaign extends Model
         return $this->belongsToMany(User::class)->withPivot(['joined_at']);
     }
 
-    protected $appends = ['is_master'];
+    // Relacionamento com os itens da campanha
+    public function items(): HasMany
+    {
+        return $this->hasMany(Item::class);
+    }
+
+    // Relacionamento com os NPCs da campanha
+    public function npcs(): HasMany
+    {
+        return $this->hasMany(Npc::class);
+    }
+
+    // Relacionamento com as notas da campanha
+    public function notes(): HasMany
+    {
+        return $this->hasMany(Note::class);
+    }
+
+    protected function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value,
+        );
+    }
+
+    protected function updatedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value,
+        );
+    }
+
     public function getIsMasterAttribute(): bool
     {
         return $this->user_id === auth()->id();
