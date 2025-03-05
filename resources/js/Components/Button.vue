@@ -22,7 +22,7 @@
     size: {
       type: String,
       default: 'normal',
-      validator: (value) => ['normal', 'xs', 'icon'].includes(value)
+      validator: (value) => ['normal', 'xs', 'icon', 'xxs'].includes(value)
     },
 
     fontType: {
@@ -55,7 +55,8 @@
   const sizeClasses = {
     normal: 'px-6 py-4 text-base font-thin',
     xs: 'px-8 py-2 text-sm font-thin',
-    icon: 'px-2 py-4 text-sm font-thin'
+    icon: 'px-2 py-4 text-sm font-thin',
+    xxs: 'px-2 py-2 text-xs font-thin'
   }
 
   const fontClass = {

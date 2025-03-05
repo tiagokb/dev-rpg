@@ -16,7 +16,7 @@ const form = useForm({
     subtitle: '',
     description: '',
     cover_img_url: '',
-    max_players: 10,
+    max_players: 5,
     is_open: false
 });
 

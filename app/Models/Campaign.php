@@ -78,4 +78,9 @@ class Campaign extends Model
     {
         return $this->user_id === auth()->id();
     }
+
+    public function contents()
+    {
+        return $this->hasMany(CampaignContent::class);
+    }
 }

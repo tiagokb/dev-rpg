@@ -32,6 +32,8 @@ export default {
                     'd8': '#F1D7AF'
                 },
                 charcoal: {
+                    'd4': '#959595',
+                    'd6': '#737373',
                     'd8': '#474747',
                     'd10': '#2F2F2F',
                     'd12': '#1B1B1B',
@@ -41,7 +43,7 @@ export default {
                     'd6': '#AB83E0',
                     'd8': '#4E00B5',
                     'd10': '#5E17BB'
-                }
+                },
             },
             backgroundImage: {
                 'barbarianBG': "url('/images/barbarianbg.jpg')",
@@ -64,17 +66,16 @@ export default {
             },
             typography: {
                 DEFAULT: {
-                  css: {
-                    maxWidth: '100ch', // add required value here
-                  }
+                    css: {
+                        maxWidth: '100ch', // add required value here
+                    }
                 }
-              }
+            }
         },
     },
 
     plugins: [
         forms,
-        require("@tailwindcss/line-clamp"),
         require("tailwindcss-animate"),
         require('@tailwindcss/typography'),
     ],
