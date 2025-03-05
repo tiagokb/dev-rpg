@@ -27,28 +27,36 @@ class CampaignController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validação dos dados
-        $request->validate([
-            'title' => 'nullable|string|max:255',
-            'subtitle' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'cover_img_url' => 'nullable|url',
-            'is_open' => 'nullable|boolean',
-        ]);
+{
+    // Validação dos dados
+    $validated = $request->validate([
+        'title' => 'required|string|max:255', // Título obrigatório
+        'subtitle' => 'nullable|string|max:255',
+        'description' => 'nullable|string',
+        'cover_img_url' => 'nullable|url',
+        'is_open' => 'nullable|boolean',
+        'max_players' => 'nullable|integer|min:1'
+    ]);
 
-        // Criar a campanha
-        $campaign = Campaign::create([
-            'title' => $request->input('title'),
-            'subtitle' => $request->input('subtitle'),
-            'description' => $request->input('description'),
-            'cover_img_url' => $request->input('cover_img_url'),
-            'is_open' => $request->input('is_open', true), // Padrão: aberta
-            'user_id' => auth()->id(), // Mestre
-        ]);
+    // Gerar código de convite único
+    $inviteCode = strtoupper(substr(md5(uniqid()), 0, 8));
 
-        return redirect()->route('campaigns.index')->with('success', 'Campanha criada com sucesso!');
-    }
+    // Criar a campanha
+    $campaign = Campaign::create([
+        'title' => $validated['title'],
+        'subtitle' => $validated['subtitle'] ?? null,
+        'description' => $validated['description'] ?? null,
+        'cover_img_url' => $validated['cover_img_url'] ?? null,
+        'is_open' => $validated['is_open'] ?? true,
+        'max_players' => $validated['max_players'] ?? 5, // Valor padrão
+        'invite_code' => $inviteCode, // Código gerado
+        'user_id' => auth()->id()
+    ]);
+
+    // Redirecionar para a página da campanha
+    return redirect()->route('campaigns.show', $campaign->id)
+        ->with('success', 'Campanha criada com sucesso!');
+}
 
     public function view($id)
     {
@@ -58,6 +66,7 @@ class CampaignController extends Controller
             Gate::authorize('view', $campaign);
 
             $parsedown = new Parsedown();
+            $campaign->load(['npcs', 'items', 'notes']); // Carrega todos os relacionamentos
             $campaign->description_html = $parsedown->text($campaign->description);
 
             return Inertia::render('Campaigns/Details', ['campaign' => $campaign]);
@@ -81,7 +90,6 @@ class CampaignController extends Controller
             return back()->with('error', 'Erro ao remover jogador da campanha.');
         }
     }
-
 
     public function update(Request $request, Campaign $campaign)
     {
@@ -144,7 +152,6 @@ class CampaignController extends Controller
             return redirect()->route('campaigns.index')->with('error', 'Ocorreu um erro ao sair da campanha.');
         }
     }
-
 
     public function destroy(Campaign $campaign)
     {

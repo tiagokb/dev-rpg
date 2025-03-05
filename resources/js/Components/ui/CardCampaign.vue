@@ -13,12 +13,12 @@ const props = defineProps({
 
 <template>
     <div class="bg-charcoal-d12 outline outline-1 outline-charcoal-d10 rounded-lg col-1">
-        <Link :href="route('campaigns.view', campaignsData.id)">
-        <div class="relative h-48 bg-cover bg-center rounded-lg p-2 flex flex-col justify-center items-center"
+        <div class="relative h-48 min-h-[300px] bg-cover bg-center rounded-lg p-2 flex flex-col justify-between"
             :style="campaignsData.cover_img_url ? { backgroundImage: `url(${campaignsData.cover_img_url})` } : { backgroundImage: `url(/images/cover.jpg)` }">
 
+            <Link :href="route('campaigns.view', campaignsData.id)" class="flex flex-col justify-center h-full p-2">
             <!-- Camada preta com 50% de opacidade -->
-            <div class="absolute inset-0 bg-black opacity-50 rounded-lg"></div>
+            <div class="absolute inset-0 bg-black opacity-70 rounded-lg"></div>
 
             <!-- Ícone com z-index maior, para aparecer acima da camada -->
             <IconMaster class="absolute top-2 left-2 z-20" v-if="campaignsData.is_master" />
@@ -30,18 +30,12 @@ const props = defineProps({
             <h3 class="relative z-10 font-rpgSans text-sm text-sand-d8 text-center">
                 {{ campaignsData.subtitle }}
             </h3>
-        </div>
-        </Link>
-
-        <div class="p-6 text-sand-d6">
-            <p class="line-clamp-3 text-xs"
-                v-html="marked.parse(campaignsData.description || '', { sanitize: true, breaks: false })">
-            </p>
-            <div class="mt-4 flex gap-2">
+            </Link>
+            <div class="z-20 rounded-lg bg-charcoal-d12 p-4 flex gap-2">
+                <Button formato="primary" size="xs" class="w-full">Jogar agora</Button>
                 <Link class="w-full" :href="route('campaigns.view', campaignsData.id)">
                 <Button formato="ghost" size="xs" class="w-full">Detalhes</Button>
                 </Link>
-                <Button formato="primary" size="xs" class="w-full">Jogar agora</Button>
             </div>
         </div>
     </div>
