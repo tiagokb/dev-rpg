@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('cover_img_url')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->boolean('is_open')->default(false);
-            $table->integer('max_players')->default(100);
+            $table->integer('max_players')->default(5);
             $table->timestamps();
             $table->string('invite_code')->unique();
         });

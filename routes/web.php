@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\CampaignController;
-use App\Http\Controllers\CharacterController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ItemController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -39,6 +39,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/campaigns/transfer/{campaign}', [CampaignController::class, 'transfer'])->name('campaigns.transfer');
     Route::put('/campaigns/leave/{campaign}', [CampaignController::class, 'leave'])->name('campaigns.leave');
     Route::delete('/campaigns/remove/{campaign}/{player}', [CampaignController::class, 'removePlayer'])->name('campaigns.removePlayer');
+    Route::post('/items', [ItemController::class, 'store'])->name('items.store');
+    Route::delete('/items/{id}', [ItemController::class, 'destroy'])->name('items.destroy');
     # CHARACTER REGION
 
 
